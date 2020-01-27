@@ -1,0 +1,90 @@
+--
+# +------------------------------------------------------------+
+# |                 Inicio del Playbook                        |
+# | Extración de información en el ambiente de TEST            |
+# |                   Versión v1                               |
+# |                                                            |
+# |                                                            |
+# +------------------------------------------------------------+
+- name: Reporte de Mantenimiento inicio
+  hosts: rhv
+  become: True
+  gather_facts: True
+  vars_files:
+    - group_vars/default.yml
+  vars:
+    heading: 'Reporte de Manteniento'
+    subheading: 'Ferromex 2020'
+  tasks:   
+    - name: "Estatus de FS"
+      shell: printf "%-25s%-15s%-12s%-12s%-12s%s\n" "Fsys" "Tamaño" "Usado" "Disp"  "Uso%" "Montado en"; df -Pl -m |grep '^/dev'| awk '$5+0 >= 80 '{'printf ("%-25s%-15s%-12s%-12s%-12s%s\n", $1, $2, $3, $4, $5, $6)'} 
+      register: statusFS
+      ignore_errors: True
+
+    - name: "hora"
+      shell: date +%H:%M:%S 
+      register: da 
+      ignore_errors: True
+
+    - name: ATRIBUTOS
+      shell: sudo lsattr  /etc/passwd /etc/group /etc/shadow /etc/motd /etc/ntp.conf /etc/resolv.conf /etc/hosts
+      register: atributos
+      ignore_errors: True
+
+    - name: ACL
+      shell: getfacl  /etc/passwd /etc/group /etc/shadow /etc/motd /etc/ntp.conf /etc/resolv.conf /etc/hosts
+      register: acl
+      ignore_errors: True
+
+    - name: Usuarios permitidos en el sistema
+      shell: grep  -e "^webadmin" -e "^ldapadmin" -e "^dwls999" -e "^smuser" -e "^emsadmin" -e "^ewsuser" -e "^jheuser" -e "^dctl999" -e "^fxeadm" -e "^fxerlogs" -e "^oracle" -e "^grid" -e "^root" -e "^ansible" -e "^nagios" -e "^splunk" -e "^devweb" -e "^dxmf999" /etc/passwd
+      register: usuarios
+      ignore_errors: True
+
+    - name: Usuarios No permitidos en el sistema
+      shell: grep -v -e "^webadmin" -v -e "^ldapadmin" -v -e  "^dwls999" -v -e "^smuser" -v -e "^emsadmin" -v -e "^ewsuser" -v -e "^jheuser" -v -e "^dctl999" -v  -e "^fxeadm" -v -e "^fxerlogs" -v -e "^oracle" -v -e "^grid" -v -e "^root" -v -e "^ansible" -v -e "^nagios" -v -e "^splunk" -v -e "^devweb" -v -e "^dxmf999" -v -e "^abrt" -v -e "^adm" -v -e "^apache" -v -e "^at" -v -e "^automate" -v -e "^avahi" -v -e "^avahi-autoipd" -v -e "^bin" -v -e "^chrony" -v -e "^colord" -v -e "^daemon" -v -e "^dbus" -v -e "^dhcpd" -v -e "^exim" -v -e "^ftp" -v -e "^games" -v -e "^gdm" -v -e "^geoclue" -v -e "^git" -v -e "^gluster" -v -e "^gnome-initial-setup" -v -e "^gopher" -v -e "^haldaemon" -v -e "^halt" -v -e "^jboss" -v -e "^libstoragemgmt" -v -e "^lp" -v -e "^luci" -v -e "^mail" -v -e "^mailnull" -v -e "^man" -v -e "^messagebus" -v -e "^named" -v -e "^news" -v -e "^nfsnobody" -v -e "^nobody" -v -e "^novlwww" -v -e "^nscd" -v -e "^ntp" -v -e "^operator" -v -e "^oprofile" -v -e "^pcap" -v -e "^pcp" -v -e "^pegasus" -v -e "^piranha" -v -e "^polkitd" -v -e "^postfix" -v -e "^pulse" -v -e "^qemu" -v -e "^radvd" -v -e "^ricci" -v -e "^root" -v -e "^rpc" -v -e "^rpcuser" -v -e "^rtkit" -v -e "^sabayon" -v -e "^saned" -v -e "^setroubleshoot" -v -e "^shutdown" -v -e "^smmsp" -v -e "^sshd" -v -e "^suse-ncc" -v -e "^sync" -v -e "^sysadmin" -v -e "^systemd-network" -v -e "^systinet" -v -e "^tcpdump" -v -e "^telegraf" -v -e "^tivmon" -v -e "^tomcat" -v -e "^unbound" -v -e "^usbmuxd" -v -e "^uucp" -v -e "^uuidd" -v -e "^vcsa" -v -e "^wilyagent" -v -e "^wwwrun" -v -e "^xfs" -v -e "^tss" -v -e "^polkituser" -v -e "^saslauth" -v -e "^cimsrvr" -v -e "^ais" -v -e "^influxdb" -v -e "^grafana" /etc/passwd 
+      register: usuariosNo
+      ignore_errors: True
+
+    - name: Tareas programadas
+      shell:  sudo crontab -l
+      register: tareas
+      ignore_errors: True
+
+
+    - name: Servicios en el sistema.
+      service_facts:
+
+# +------------------------------------------------------------+
+# |                 Se copia la plantilla                      |
+# |          La plantilla es llenada con las varibles          |
+# |   el archivo que se lleno es regresado al servidor origen  |
+# |      la información puede ser entregada en PDF o HTML      |
+# |                                                            |
+# +------------------------------------------------------------+
+
+    - name: Construccion de archivo ADOC
+      template: 
+        src=templates/ficha_tecnica_rhv.j2 
+        dest=/tmp/ficha_tecnica_rhv-{{ ansible_default_ipv4.address }}.adoc
+
+    - fetch:
+        src=/tmp/ficha_tecnica_rhv-{{ ansible_default_ipv4.address }}.adoc
+        dest=/tmp/
+
+# +------------------------------------------------------------+
+# |                 Inicio del Playbook                        |
+# |             Convertir archivos a "HTML"                    |
+# |                     Versión v1                             |
+# |                                                            |
+# |                                                            |
+# +------------------------------------------------------------+
+- name: prueba
+  hosts: local
+  tasks:
+
+    - name: Comvertir a HTML
+      shell: asciidoctor /tmp/10.*.*.*/tmp/*.adoc
+
+    - name: Mover HTML-PROD
+      shell: mv /tmp/10.*.*.*/tmp/*.html /opt/data/Documentos/ansible/Fichas_Tecnicas_IMMS/web

@@ -1,0 +1,7 @@
+---
+
+- hosts: rhv
+  gather_facts: false
+  tasks:
+    - ping:
+    

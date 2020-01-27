@@ -1,0 +1,39 @@
+---
+- hosts: alldrp
+  become: yes
+  tasks:
+  - name: "Análisis FS mayor al 80%"
+    shell:  sudo crontab -l
+    register: df1
+    ignore_errors: True
+
+  - name: Debug Servers
+    debug:
+      var: df1.stdout_lines
+
+
+#  - name: send a message to chat in playbook
+#    telegram:
+#      token: '955102123:AAEmocJb2sDKry56vDoeubhQr1dk-bo1wm8'
+#      chat_id: '-358935397'
+#      msg: |
+#           - "La validacion de FS fue ejecutada:"
+#           - "{{ ansible_default_ipv4.address }}  {{  ansible_fqdn }}"
+#           - "{{ df1.stdout_lines }}"
+#    delegate_to: 10.1.12.10
+#    when: df1 is succeeded
+#    ignore_errors: True
+#
+#  - name: Enviando Notificaciones
+#    mail:
+#      host: smtp.gmail.com
+#      port: 465
+#      username: mpinedam01@gmail.com
+#      password: 'nfaprkeysmyfgrxf'
+#      to: Miguel Pineda <mpinedam01@gmail.com>
+#      subject: Ansible-report análisis FS.
+#      body: |
+#            - " Acontinuación se muestra los FileSystem del servidor {{ ansible_fqdn }}"
+#            - "{{ ansible_default_ipv4.address }}"
+#            - "{{ df1.stdout_lines }}"
+#    delegate_to: 10.1.12.10

@@ -1,0 +1,11 @@
+---
+- hosts: alltest
+  become: yes
+  become_user: root
+  tasks:
+   - name: Servicios en el sistema.
+     service_facts:
+
+   - debug:
+       var: ansible_facts.services
+

@@ -1,0 +1,167 @@
+////
+NO CAMBIAR!!
+Codificación, idioma, tabla de contenidos, tipo de documento 
+////							    
+:encoding: utf-8					   
+:lang: es						
+:toc: right                                           
+:toc-title: Tabla de contenidos                   
+:doctype: book
+:imagesdir: ./
+
+
+////
+Nombre y título del trabajo
+////
+# Reporte de mantenimiento
+Ambiente SICOP
+:numbered!:
+
+
+
+=== Servidor de clúster - Nodo {{ ansible_fqdn }}. 
+
+
+
+
+== {{ ansible_os_family }} {{ ansible_distribution_version }}
+ 
+=== Descripción del sistema
+
+|====
+^|*Componentes*  		|  Detalle  
+|*Hostname:*               	| {{ ansible_fqdn }}
+|*Sistema Operativo:*           | {{ SO.stdout}}
+|*Tipo de Sistema:*             | {{ TOS.stdout}}
+|*Memoria Ram:*			| {{ Tram.stdout}}
+|*Almacenamiento:*		| {{ TAlma.stdout}}
+|*Red*				| {{ Tred.stdout}}
+|====
+
+
+=== Validación de DNS.
+Validación dentro del archivo de configuración de DNS.
+
+```
+{{ dnsR.stdout}}
+
+```
+
+```
+{{ dns1.stdout}}
+
+```
+
+```
+{{ dns2.stdout}}
+
+```
+
+=== Validación de tabla de Routeo.
+
+
+```
+{{ routeN.stdout}}
+
+```
+
+
+=== Validación de Firewall.
+
+```
+{{ fwrd.stdout}}
+
+```
+
+=== Validación de servicio cockpit.
+
+```
+{{ ckpt.stdout}}
+
+```
+
+=== Validación de ovirt-ha-broker.service.
+
+```
+{{ OvH.stdout}}
+
+```
+
+=== Validación de ovirt-ha-agent.
+
+```
+{{ OvHA.stdout}}
+
+```
+
+=== Paquetes instalados, solo nombre y proveedor.
+
+```
+{{ pisnp.stdout}}
+
+```
+
+=== Total de paquetes instalados.
+
+```
+{{ pkgtotal.stdout}}
+
+```
+
+
+=== Validar Paquete de rhvm-appliance
+
+```
+{{ rpmrhv.stdout}}
+
+```
+
+=== Validar paquetes de Multipath
+
+```
+{{ pkgmul.stdout}}
+
+```
+
+=== Validar servicio de multipath
+
+```
+{{ serviceM.stdout}}
+
+```
+
+=== Validar Multipath
+
+```
+{{ multiS.stdout}}
+
+```
+
+=== Validar Hora sincronizada (NTP) 
+
+```
+{{ ntp1.stdout}}
+
+```
+
+=== Validar archivos de Red.
+
+```
+{{ archivosR.stdout}}
+
+```
+
+
+=== Validar Hosted Engine
+
+```
+{{ hosE.stdout}}
+
+```
+
+=== Validar Estado de Hipervisores
+
+```
+{{ VMsta.stdout}}
+
+```

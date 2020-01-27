@@ -1,0 +1,16 @@
+---
+- hosts: alltest
+  become: yes
+  become_user: root
+  tasks:
+
+# Pass the process name
+  - name: Getting process IDs of the process
+    pids:
+    name: ntp
+    register: pids_of_python
+
+  - name: Printing the process IDs obtained
+    debug:
+      msg: "PIDS of python:{{pids_of_python.pids|join(',')}}"
+

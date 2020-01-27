@@ -1,0 +1,80 @@
+---
+- hosts: 10.1.4.71 
+  become: yes
+  vars:
+     Resultados: |
+           {{ p_total.stdout }}
+           {{ t_total.stdout }}
+           {{ p_u_total.stdout }}
+
+  tasks:
+  - name: "Obteniendo número de procesos totales en sistema"
+    shell: ps -e | wc -l
+    register: p_total
+    ignore_errors: True
+  - name: "Obteniendo número de Kernel Threads"
+    shell: ps --no-headers aux|grep -E -e '\[*\]' -e ansible | wc -l
+    register: t_total
+    ignore_errors: True
+  - name: "Obteniendo número procesos no iniciados por el Kernel"
+    shell: ps --no-headers aux|grep -v -E -e '\[*\]' -e ansible | wc -l
+    register: p_u_total
+    ignore_errors: True
+
+  - name: "Obteniendo Top 30 procesos que consumen memoria"
+    shell: ps -eo pid,ppid,rss,%cpu,cmd --sort=-rss | grep -E -v "\[*\]" | head -n 30
+    register: top_30_procesos
+    ignore_errors: True
+
+  - name: "Obteniendo Top 10 procesos principales, ordenados por uso de memoria"
+    shell: ps axo rss,comm,pid | awk '{ proc_list[$2]++; proc_list[$2 "," 1] += $1; } END { for (proc in proc_list) { printf("%d\t%s\n", proc_list[proc "," 1],proc); }}' | sort -n | tail -n 20 | sort -rn | awk '{$1/=1024;printf "%.0fMB\t",$1}{print $2}' 
+    register: top_10_consumo_memoria
+    ignore_errors: True
+
+  - name: Obteniendo Procesos HTTP
+    shell: ps -ef | grep -v grep | grep -w -e httpd -e java | awk '{print $2}'
+    register: running_processes
+
+  - name: Analisando procesos HTTP & JAVA
+    shell: pmap {{ item }} | grep anon | wc -l
+    with_items: "{{ running_processes.stdout_lines }}"
+    register: mapeo
+
+
+
+
+  - debug: 
+       msg: 
+         - Total de Procesos       : "{{ p_total.stdout }}"
+         - Kernel Threads          : "{{ t_total.stdout }}"
+         - No Kernel Threads       : "{{ p_u_total.stdout }}"
+         - Top 30 Procesos Memoria : "{{ top_30_procesos.stdout_lines }}"
+         - Top 10 Procesos Consumo Memoria : "{{ top_10_consumo_memoria.stdout_lines }}"
+         - Mapeo de memoria : "{{ mapeo }}"
+       
+
+#  - name: send a message to chat in playbook
+#    telegram:
+#      token: '955102123:AAEmocJb2sDKry56vDoeubhQr1dk-bo1wm8'
+#      chat_id: '-358935397'
+#      msg: |
+##           "La validacion de FS fue ejecutada:"
+#           "{{ ansible_default_ipv4.address }}  {{  ansible_fqdn }}"
+#           {{ df1.stdout_lines }}
+#    delegate_to: 10.1.12.10
+#    when: df1 is succeeded
+#
+#  - name: Enviando Notificaciones
+#    mail:
+#      host: smtp.gmail.com
+#      port: 465
+#      username: mpinedam01@gmail.com
+#      password: 'nfaprkeysmyfgrxf'
+#      to: Miguel Pineda <mpinedam01@gmail.com>
+#      subject: Ansible-report análisis FS.
+#      body: |
+#            " Acontinuación se muestra los FileSystem del servidor {{ df1.stdout_lines }}"
+#    delegate_to: 10.1.12.10
+
+#What are the aio/ata/kmpathd/kjournald/ksoftirqd/migration/watchdog processes mean?
+#https://access.redhat.com/solutions/506153

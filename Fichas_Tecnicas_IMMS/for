@@ -1,0 +1,43 @@
+*------------------------------------------------
+| 		El siguiente For		|
+|    Es utilizado para traer las reportes 	|
+|    de los servidor que no soportan ansible	|
+|    						|
+|    Nota: modificar la linea 7 dependiendo	|
+|    la versión de SO que se vaya a correr el 	|
+|    script					|
+|						|
+|    * /usr/bin/sh	RHEL 6+			|
+|    * /bin/sh		RHEL 5			|
++-----------------------------------------------+
+
+
+
+for i in $(cat  ip_test.txt)
+do
+echo " "
+echo "IP: " $i
+scp Reporte_Mantenimiento.sh ansible@$i:/tmp
+ssh ansible@$i sudo chmod +x /tmp/Reporte_Mantenimiento.sh
+ssh ansible@$i sudo /bin/sh /tmp/Reporte_Mantenimiento.sh
+ssh ansible@$i sudo chmod 777 /tmp/Reportes_mantenimiento_*
+scp ansible@$i:/tmp/Reportes_mantenimiento_* /home/ansible/ansible/Reportes_Mantenimiento/web
+done
+
+for i in $(cat  ip_prod.txt)
+do
+echo " "
+echo "IP: " $i
+scp ansible@$i:/tmp/Reportes_mantenimiento_* /home/ansible/ansible/Reportes_Mantenimiento/web
+done 
+
+
+for i in $(cat  ip_prod.txt)
+do 
+echo " "
+echo "IP: " $i
+ssh ansible@$i sudo rm -rf /tmp/Reportes_mantenimiento_*
+done
+
+
+

@@ -1,0 +1,173 @@
+---
+# +------------------------------------------------------------+
+# |                 Inicio del Playbook                        |
+# | Extración de información en el ambiente de TEST            |
+# |                   Versión v1                               |
+# |                                                            |
+# |                                                            |
+# +------------------------------------------------------------+
+- name: Reporte de Mantenimiento inicio
+  hosts: rhv
+  become: True
+  gather_facts: True
+  vars_files:
+    - group_vars/default.yml
+  vars:
+    heading: 'Ficha_Tecnica'
+    subheading: '2020'
+  tasks:   
+    - name: "Sistema Operativo"
+      shell: cat /etc/redhat-release
+      register: SO
+      ignore_errors: True
+
+    - name: "Tipo de Sistema Operativo"
+      shell: dmidecode | grep -i -A9 'System Information' | grep -i 'Product Name' | cut -c 15-50
+      register: TOS
+      ignore_errors: True
+
+    - name: "Memoria RAM"
+      shell: cat /proc/meminfo  | grep -i 'MemTotal' | cut -c 10-60
+      register: Tram
+      ignore_errors: True
+
+    - name: "Almacenamiento"
+      shell: date
+      register: TAlma
+      ignore_errors: True
+
+
+    - name: "Red"
+      shell: ip a s | grep '<***>' | awk  '{ print $2}'
+      register: Tred
+      ignore_errors: True
+
+    - name: "Validar archivo de DNS"
+      shell: cat /etc/resolv.conf
+      register: dnsR
+      ignore_errors: True
+
+    - name: "Validar DNS1"
+      shell: dns1=$(cat /etc/resolv.conf | grep  'nameserver 1' | cut -c 12-20) ;  dig -x $dns1
+      register: dns1
+      ignore_errors: True
+
+    - name: "Validar DNS2"
+      shell: dns2=$(cat /etc/resolv.conf | grep  'nameserver 8' | cut -c 12-20) ;  dig -x $dns2
+      register: dns2
+      ignore_errors: True
+
+
+    - name: "Validar tabla de route"
+      shell: route -n
+      register: routeN
+      ignore_errors: True
+
+
+    - name: "Validar Firewall"
+      shell: firewall-cmd --list-all
+      register: fwrd
+      ignore_errors: True
+
+
+    - name: "Validar servicios de Cockpit"
+      shell: systemctl status cockpit.service
+      register: ckpt
+      ignore_errors: True
+    
+    - name: "Validar servicios ovirt-ha-broker"
+      shell: systemctl status ovirt-ha-broker.service
+      register: OvH
+      ignore_errors: True
+
+    - name: "Validar servicios ovirt-ha-agent"
+      shell: systemctl status ovirt-ha-agent.service
+      register: OvHA
+      ignore_errors: True
+
+    - name: "Paquetes instalados, solo nombre y proveedor"
+      shell: rpm -qa --queryformat '%-50{NAME} %{VENDOR}\n' | sort -d -f
+      register: pisnp
+      ignore_errors: True
+
+    - name: "Total de paquetes instalados"
+      shell: rpm -qa | wc -l
+      register: pkgtotal
+      ignore_errors: True
+
+
+    - name: "Validar rhvm-appliance"
+      shell: rpm -qa | grep -i 'rhvm-appliance*'
+      register: rpmrhv
+      ignore_errors: True
+
+    - name: "validar paquetes de multipas"
+      shell: rpm -qa | grep multipath
+      register: pkgmul
+      ignore_errors: True
+
+    - name: "Validar sericio de multipath"
+      shell: systemctl status multipathd
+      register: serviceM
+      ignore_errors: True
+
+
+    - name: "Validar  multipath"
+      shell: multipath -ll
+      register: multiS
+      ignore_errors: True
+
+    - name: "Validar Sincronizacion de hora NTP"
+      shell: ntpstat
+      register: ntp1
+      ignore_errors: True
+
+    - name: "Archivos de red_configuración"
+      shell: for heimat in /etc/sysconfig/network-scripts/ifcfg-*; do printf "\n\n$(basename ${heimat}):\n\n"; cat ${heimat}; done
+      register: archivosR
+      ignore_errors: True
+
+    - name: "Validar Hosted Engine"
+      shell: hosted-engine --check-liveliness
+      register: hosE
+      ignore_errors: True
+
+    - name: "Validar estadod e Hipervidores"
+      shell: hosted-engine --vm-status
+      register: VMsta
+      ignore_errors: True
+
+
+# +------------------------------------------------------------+
+# |                 Se copia la plantilla                      |
+# |          La plantilla es llenada con las varibles          |
+# |   el archivo que se lleno es regresado al servidor origen  |
+# |      la información puede ser entregada en PDF o HTML      |
+# |                                                            |
+# +------------------------------------------------------------+
+
+    - name: Construccion de archivo ADOC
+      template: 
+        src=templates/ficha_tecnica_rhv1.j2
+        dest=/tmp/ficha_tecnica_rhv-{{ ansible_default_ipv4.address }}.adoc
+
+    - fetch:
+        src=/tmp/ficha_tecnica_rhv-{{ ansible_default_ipv4.address }}.adoc
+        dest=/tmp/
+
+# +------------------------------------------------------------+
+# |                 Inicio del Playbook                        |
+# |             Convertir archivos a "HTML"                    |
+# |                     Versión v1                             |
+# |                                                            |
+# |                                                            |
+# +------------------------------------------------------------+
+- name: prueba
+  hosts: local
+  tasks:
+
+    - name: Comvertir a HTML
+      shell: asciidoctor /tmp/10.*.*.*/tmp/*.adoc
+
+    - name: Mover HTML-PROD
+      shell: mv /tmp/10.*.*.*/tmp/*.html /opt/data/Documentos/ansible/Fichas_Tecnicas_IMMS/web

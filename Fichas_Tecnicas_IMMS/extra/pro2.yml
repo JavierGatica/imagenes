@@ -1,0 +1,13 @@
+---
+- hosts: alltest
+  become: yes
+  tasks:
+  - name: "Análisis FS mayor al 80%"
+    shell: systemctl list-units || chkconfig --list 
+    register: df1
+    ignore_errors: True
+
+  - name: Debug Servers
+    debug:
+      var: df1.stdout_lines
+
