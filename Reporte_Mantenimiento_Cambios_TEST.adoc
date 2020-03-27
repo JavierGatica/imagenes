@@ -1,0 +1,296 @@
+////
+NO CAMBIAR!!
+Codificación, idioma, tabla de contenidos, tipo de documento 
+////							    
+:encoding: utf-8					   
+:lang: es						
+:toc: right                                           
+:toc-title: Tabla de contenidos                   
+:doctype: book
+:imagesdir: ./
+
+
+////
+Nombre y título del trabajo
+////
+# Reporte de cambios
+Documentación Servidores SICOP.
+:numbered!:
+
+
+== Información básica
+|===		
+.3+^.^|image:https://scontent.fmex3-1.fna.fbcdn.net/v/t1.0-9/16142577_1225797400834105_8492740367864310273_n.jpg?_nc_cat=100&_nc_sid=dd9801&_nc_ohc=3NMHZ9wFz_kAX_Ryx2D&_nc_ht=scontent.fmex3-1.fna&oh=bf83835f4c86c6c8ba5667fa1a542da6&oe=5E96E4CA[ferromex,120,130,float="center",align="center"]                                    3+^|*System Documentation - HEIMAT*
+2+^.^| *Ambiente SICOP*  									    |
+2+| *Fecha:* Jueves 26 de Marzo del 2020  |*Número de semana:* 13
+|===	
+
+
+=== Introducción
+	Este procedimiento define la documentación y monitoreo de los cambios que afectan a los recursos del área de sistemas, para minimizar el impacto en el ambiente de SICOP-TEST.
+
+=== Objetivo
+
+
+== Reporte.
+ 
+=== Descripción del sistema
+
+|====
+2+^|*Descripción del Sistema.*
+|*Compañia*               | Ferromex
+|*Ubicación:*             | Ciudad de México y Guadalajara
+|*Contacto:*              | Javier Antonio Gatica Tenorio
+|*E-mail Contacto:*       | so.sicop@heimat.mx
+|====
+
+
+|====
+2+^|*Información Ambiente SICOP-PROD*
+|*Ambiente:*              | SICOP-TEST 
+|*Red:*                   | 10.1.12.0/23
+|*Gateway:*               | 10.1.12.1   
+|*DNS:*                   | 10.1.12.5
+|*Ubicación:*             | Guadalajara
+|====
+
+=== Archivo de configuración de DNS
+Limpieza del archivo archivo de configuración de DNS.
+
+Ejemplo de archivo limpio.
+----
+Ruta: /etc/resolv.conf
+
+domain sicop.uprr.com 
+search sicop.uprr.com
+nameserver 10.1.12.5
+
+----
+
+=== Administración de usuarios.
+Se realizó la eliminación de usuarios no reconocidos por parte del equipo de FXE.
+
+.Para realizar la tarea de eliminación se realizaron respaldos de los archivos de configuración que se listan a continuación:
+* /etc/passwd
+* /etc/group
+* /etc/shadow
+* /home/'{usuario}'
+
+NOTE: '{usuario}' Indica el directorio del usuarios que se eliminarán del servidor
+
+Lista de usuarios eliminados en SICOP-PROD:
+----
+  - ababeher
+      - abhisri1
+      - ajuarez
+      - ajuarezc
+      - alshriv1
+      - amaddir1
+      - anupsin5
+      - apdevar1
+      - becerram
+      - c01_user
+      - correazu
+      - cperez
+      - dapa998
+      - dwls995
+      - dxmf998
+      - egarciaf
+      - emontesi
+      - emontesinos
+      - gbautista
+      - herlinda
+      - hzavala
+      - iamadmin
+      - iamdmin
+      - ibmlinux
+      - jmendoz
+      - jmmejia
+      - jyosang1
+      - krvreddy
+      - lsicop
+      - mahsunku
+      - majraj13
+      - mariosp
+      - mohiddsh
+      - mvargas
+      - mx04879a
+      - mx056673
+      - mx063896
+      - nichinta
+      - osaldivar
+      - otorreza
+      - palizada
+      - prueba
+      - rahbathi
+      - rshaik17
+      - rswarna1
+      - sakothur
+      - sasdasar
+      - scheldi1
+      - shdipat1
+      - shindena
+      - sicopdev
+      - sochokka
+      - srimalem
+      - subasr87
+      - sushansi
+      - tejkathi
+      - test
+      - uatagnt
+      - vamancha
+      - vinrunku
+      - wintel
+      - ymendoza
+----
+
+=== Manejo de agentes.
+En el ambiente de SICOP-PROD se realizó la instalación de los siguientes agentes:
+
+
+|====
+2+^|*Agente SNOW*
+|*Red Hat Enterprise Linux 5* .5+^.^| FERROMEX_snowagent-5.2.0-1.x86_64.rpm
+|*Red Hat Enterprise Linux 6*               
+|*Oralce Linux 6*            
+|*Oracle Linux7*           
+|*Suse Linux Enterprise Server 11*           
+|====
+
+
+|====
+2+^|*Agente Deep Security Software*
+.2+^.^|*Red Hat Enterprise Linux*    	  ^.^|Agent-RedHat_EL6-12.0.0-682.x86_64 
+       		 			  ^.^|Agent-RedHat_EL5-10.0.0-3607.x86_64	
+.2+^.^|*Oralce Linux*            	  ^.^|Agent-Oracle_OL7-12.0.0-682.x86_64          
+	         			  ^.^|Agent-Oracle_OL6-12.0.0-682.x86_64
+^.^|*Suse Linux Enterprise Server*        ^.^|Agent-SuSE_11-12.0.0-682.x86_64
+       
+|====
+
+
+|====
+2+^|*Agente Veeam*
+.3+^.^|*Red Hat Enterprise Linux*            ^.^|veeamsnap-3.0.1.1046-1.noarch.rpm
+                                          ^.^|veeam-3.0.1046-el6.x86_64.rpm
+					  ^.^|Dependencias Adicionales.
+.3+^.^|*Oracle Linux*                        ^.^|veeamsnap-3.0.1.1046-1.noarch.rpm
+                                          ^.^|veeam-3.0.1046-el6.x86_64.rpm
+                                          ^.^|Dependencias Adicionales.
+|====
+
+|====
+2+^|*Agente Nagios*
+.2+^.^|*Red Hat Enterprise Linux*            ^.^|linux-nrpe-agent.tar.gz
+                                             ^.^|Dependencias Adicionales.
+.2+^.^|*Oracle Linux*                        ^.^|linux-nrpe-agent.tar.gz
+                                             ^.^|Dependencias Adicionales.
+.2+^.^|*Suse Enterprise Linux Server*        ^.^|linux-nrpe-agent.tar.gz
+                                             ^.^|Dependencias Adicionales.
+|====
+
+
+=== Parametros kernel
+Swappiness es una propiedad del Núcleo Linux que permite establecer un balance entre el uso del Espacio de intercambio (Swap en inglés, por eso el nombre de la propiedad) y la Memoria de acceso aleatorio (RAM).
+
+Configuración de Swappiness: 
+
+----
+vm.swappiness = 25
+----
+
+=== Recording session
+Herramineta de potente funcionalidad que lo ayuda a registrar todo lo que está ingresando en su terminal en un archivo de registro.
+
+Los registros son almacenados dentro del siguiente directorio:
+
+----
+/var/log/session
+
+session.root.80964.022020200918.timing
+session.root.80968.021420202357
+session.root.80968.021420202357.timing
+session.root.88178.021220200840
+session.root.88178.021220200840.timing
+----
+
+=== Implementación de playbooks
+
+Playbook: lenguaje de configuración, despliegue y orquestación de Ansible. Se utilizan para describir una serie de políticas aplicables sobre un sistema o un conjunto de sistemas.
+
+.Diseño de playbooks para automatizar tareas de:
+* Análisis de procesos Java
+* Estado de FS
+* Reportes de mantenimiento.
+* Full Assesment
+* Administración de usuarios (Eliminación y Bloqueo).
+* Validar Servicios
+* Pruebas de escritura.
+
+Salida ejemplo:
+----
+TASK [Debug Servers] *************************************************************************************************************************************************************************************************************************
+TASK [Debug Servers] *************************************************************************************************************************************************************************************************************************
+ok: [10.1.12.10] => {
+    "df1.stdout_lines": []
+}
+ok: [10.1.12.11] => {
+    "df1.stdout_lines": []
+}
+ok: [10.1.12.13] => {
+    "df1.stdout_lines": [
+        "100% /mnt/cdrom"
+    ]
+}
+ok: [10.1.12.12] => {
+    "df1.stdout_lines": []
+}
+
+PLAY RECAP ***********************************************************************************************************************************************************************************************************************************
+10.1.12.10                 : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+10.1.12.11                 : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+10.1.12.12                 : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+10.1.12.13                 : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+----
+
+
+=== Creación de interfaces de red
+El dispositivo de red loopback es una interfaz de red virtual. Esta dirección se suele utilizar cuando una transmisión de datos tiene como destino el propio host.
+
+Servidores SLES.
+
+.Creacción de archivo de configuración de dentro del siguiente directorio:
+* /etc/sysconfig/network/ifcfg-lo
+
+
+=== Gestión de fstab
+El */etc/fstab* este archivo se utiliza para controlar qué sistemas de archivos se montan cuando se inicia el sistema, así como para proporcionar valores predeterminados para otros sistemas de archivos que pueden montarse
+
+.Activiades:
+* Resolución de problemas con *fstab*.
+* Recuperaci+on de sistemas iniciando en modo *rescue*.
+
+
+=== Cambios de Hardware.
+Tarea realiza en conjunto con el equipo de FXE para aumentar la capacidad de memoria RAM en SICOP-PROD.
+
+.Grupo de servidores:
+* SICOP-INTERFAZ SICOTRA
+
+.Tareas realizadas.
+* Aumento de módulos de memoria.
+* Validación de incremento 
+
+
+== Extra          
+        
+|===
+.5+^.^|image:https://scontent.fmex3-1.fna.fbcdn.net/v/t1.0-9/16142577_1225797400834105_8492740367864310273_n.jpg?_nc_cat=100&_nc_sid=dd9801&_nc_ohc=3NMHZ9wFz_kAX_Ryx2D&_nc_ht=scontent.fmex3-1.fna&oh=bf83835f4c86c6c8ba5667fa1a542da6&oe=5E96E4CA[ferromex,120,130,float="center",align="center"] 3+^|*Comentarios:*
+.4+|
+|===
+
+          
+|===
+.5+^.^|image:https://scontent.fmex3-1.fna.fbcdn.net/v/t1.0-9/16142577_1225797400834105_8492740367864310273_n.jpg?_nc_cat=100&_nc_sid=dd9801&_nc_ohc=3NMHZ9wFz_kAX_Ryx2D&_nc_ht=scontent.fmex3-1.fna&oh=bf83835f4c86c6c8ba5667fa1a542da6&oe=5E96E4CA[ferromex,120,130,float="center",align="center"] 3+^|*Recomendaciones:*
+.4+|
+|===
